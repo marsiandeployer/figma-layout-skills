@@ -401,16 +401,60 @@
         <p>Практический каталог для переноса макета в код и контроля опубликованной страницы, в том числе на Tilda.</p>
         <nav class="nav" aria-label="Разделы страницы">
           <a href="#checks">9 точечных проверок</a>
+          <a href="#sequence">Последовательный маршрут</a>
           <a href="#catalog">Полный каталог</a>
           <a href="#workflow">Порядок работы</a>
         </nav>
       </div>
       <div class="hero-meta">
         <strong>27 скиллов</strong>
-        9 точечных проверок и 18 инструментов общего процесса.<br>
+        Последовательный маршрут, 9 точечных проверок и 18 инструментов общего процесса.<br>
         Актуальность поиска: 21 сентября 2026.
       </div>
     </header>
+
+    <section id="sequence">
+      <div class="section-heading">
+        <div>
+          <h2>Рекомендуемая последовательность: от Figma до Tilda</h2>
+          <p>Запускайте следующий этап только после выхода предыдущего. На каждом шаге фиксируйте вход, проверку и артефакт — так расхождение можно вернуть к конкретной причине, а не исправлять «на глаз».</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        Методика основана на официальном Dev Mode handoff Figma, детерминированных screenshot-сравнениях Playwright, проверке responsive-поведения на реальных viewport и критериях WCAG 2.2. Для Tilda сравнивайте именно опубликованный URL, а не только редактор блоков.
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Шаг</th>
+              <th>Скилл / роль</th>
+              <th>Что сделать</th>
+              <th>Выходной артефакт и gate</th>
+              <th>Tilda</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="num" data-label="Шаг">00</td><td data-label="Скилл / роль"><span class="skill-name">test-master</span><span class="subtle">составить стратегию</span></td><td data-label="Что сделать">Зафиксировать URL/ветку, точный Figma node, состояния, контент, целевые viewport и допустимые отклонения.</td><td data-label="Артефакт и gate">Карта экранов и чек-лист; без неё сравнение не считается воспроизводимым.</td><td data-label="Tilda"><span class="badge">Да</span></td></tr>
+            <tr><td class="num" data-label="Шаг">01</td><td data-label="Скилл / роль"><span class="skill-name">figma-implement-design</span><span class="subtle">эталон из Figma Dev Mode</span></td><td data-label="Что сделать">Осмотреть структуру, Auto Layout, Variables, компоненты, варианты, состояния и экспортируемые assets.</td><td data-label="Артефакт и gate">Таблица tokens/компонентов и ссылки на node; все неоднозначности отмечены до кода.</td><td data-label="Tilda"><span class="badge">Да</span></td></tr>
+            <tr><td class="num" data-label="Шаг">02</td><td data-label="Скилл / роль"><span class="skill-name">figma-design-handoff</span><span class="subtle">передача в реализацию</span></td><td data-label="Что сделать">Перевести Variables, типографику, цвета, spacing, breakpoints и состояния в понятные design tokens и контракт компонентов.</td><td data-label="Артефакт и gate">Единый источник токенов; утверждены шрифты, лицензии, форматы и правила responsive.</td><td data-label="Tilda"><span class="badge partial">Частично</span></td></tr>
+            <tr><td class="num" data-label="Шаг">03</td><td data-label="Скилл / роль"><span class="skill-name">implement-design</span><span class="subtle">каркас и компоненты</span></td><td data-label="Что сделать">Собрать семантический каркас страницы и переиспользуемые компоненты, не полируя отдельные пиксели до появления всей структуры.</td><td data-label="Артефакт и gate">Все экраны и ключевые состояния существуют; контент не заменён случайными заглушками.</td><td data-label="Tilda"><span class="badge partial">Частично</span></td></tr>
+            <tr><td class="num" data-label="Шаг">04</td><td data-label="Скилл / роль"><span class="skill-name">compare-screenshots</span> + <span class="skill-name">chrome-devtools-automation</span><span class="subtle">assets и загрузка</span></td><td data-label="Что сделать">Проверить URL, naturalWidth/naturalHeight, формат, crop, качество изображений, иконки, шрифты и ошибки загрузки.</td><td data-label="Артефакт и gate">Список assets с фактическими размерами; нет битых ресурсов и неожиданных апскейлов.</td><td data-label="Tilda"><span class="badge">Да</span></td></tr>
+            <tr><td class="num" data-label="Шаг">05</td><td data-label="Скилл / роль"><span class="skill-name">figma-check-design-parity</span><span class="subtle">геометрия</span></td><td data-label="Что сделать">Сверить контейнеры, размеры, позиции, padding/margin, gap, радиусы и общие края на том же viewport, что в Figma.</td><td data-label="Артефакт и gate">Парные screenshot/overlay и список отклонений; сначала исправлены общие стили, потом локальные исключения.</td><td data-label="Tilda"><span class="badge">Да</span></td></tr>
+            <tr><td class="num" data-label="Шаг">06</td><td data-label="Скилл / роль"><span class="skill-name">typography-system</span> + <span class="skill-name">color-contrast</span><span class="subtle">текст и цвет</span></td><td data-label="Что сделать">Проверить font-family/weight/size/line-height/letter-spacing, переносы, цвета текста/фона/заливок и контраст интерактивных состояний.</td><td data-label="Артефакт и gate">Таблица типографики и цветовых пар; нет незапланированных переносов и провалов WCAG 2.2.</td><td data-label="Tilda"><span class="badge">Да</span></td></tr>
+            <tr><td class="num" data-label="Шаг">07</td><td data-label="Скилл / роль"><span class="skill-name">playwright-skill</span> + <span class="skill-name">forms-inputs-checkout</span><span class="subtle">поведение</span></td><td data-label="Что сделать">Пройти ссылки, кнопки, меню, модальные окна и формы; проверить hover/focus/disabled/error/success, клавиатуру, console и network.</td><td data-label="Артефакт и gate">Повторяемые сценарии и журнал ошибок; каждый элемент имеет ожидаемое действие и состояние.</td><td data-label="Tilda"><span class="badge">Да</span></td></tr>
+            <tr><td class="num" data-label="Шаг">08</td><td data-label="Скилл / роль"><span class="skill-name">responsive-design</span><span class="subtle">адаптив</span></td><td data-label="Что сделать">Повторить проверки на согласованных desktop/tablet/mobile viewport, включая промежуточную ширину, touch и отсутствие горизонтального overflow.</td><td data-label="Артефакт и gate">Матрица viewport; layout, изображения, типографика и интеракции не ломаются между брейкпоинтами.</td><td data-label="Tilda"><span class="badge partial">Частично</span></td></tr>
+            <tr><td class="num" data-label="Шаг">09</td><td data-label="Скилл / роль"><span class="skill-name">performance-and-web-vitals</span><span class="subtle">стабильность</span></td><td data-label="Что сделать">Проверить повторную загрузку, lazy assets, CLS, LCP, INP, ошибки сети, длинный скролл и сдвиги layout после появления контента.</td><td data-label="Артефакт и gate">Performance trace и список Web Vitals; нет критических сдвигов, зависаний или незагруженных блоков.</td><td data-label="Tilda"><span class="badge">Да</span></td></tr>
+            <tr><td class="num" data-label="Шаг">10</td><td data-label="Скилл / роль"><span class="skill-name">visual-regression-tester</span> + <span class="skill-name">web-accessibility</span><span class="subtle">регрессия и a11y</span></td><td data-label="Что сделать">Зафиксировать baseline на тех же браузере, шрифтах, данных и viewport; прогнать screenshot diff, keyboard, focus, alt и ARIA.</td><td data-label="Артефакт и gate">Отчёт diff/a11y с классификацией «дефект или допустимая динамика»; baseline обновляется только после ревью.</td><td data-label="Tilda"><span class="badge">Да</span></td></tr>
+            <tr><td class="num" data-label="Шаг">11</td><td data-label="Скилл / роль"><span class="skill-name">post-deploy-qa</span> + <span class="skill-name">design-review</span><span class="subtle">live-приёмка</span></td><td data-label="Что сделать">Проверить опубликованный URL после публикации и после каждой правки: визуал, клики, формы, скролл, адаптив и console/network.</td><td data-label="Артефакт и gate">Финальный протокол с URL, временем, viewport, screenshot и известными ограничениями; только после него «готово».</td><td data-label="Tilda"><span class="badge">Да</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="subtle" style="margin-top:14px">Практическое правило: после любого изменения возвращайтесь к шагу 05, а затем повторяйте затронутые шаги 06–11. Не смешивайте исправление с baseline-снимком в одном прогоне.</p>
+    </section>
 
     <section id="checks">
       <div class="section-heading">
@@ -518,7 +562,7 @@
       <div class="section-heading">
         <div>
           <h2>Полный каталог переноса и проверки</h2>
-          <p>Базовая связка из предыдущей таблицы: от получения параметров Figma до финальной проверки опубликованной страницы.</p>
+          <p>Справочник доступных локальных и внешних инструментов. Основным источником правды остаётся последовательная таблица выше.</p>
         </div>
       </div>
 
@@ -590,7 +634,7 @@
     </section>
 
     <footer>
-      Источники: карточки skills.sh и исходные репозитории скиллов. Число установок меняется со временем. Перед установкой стороннего скилла рекомендуется проверить его SKILL.md и разрешения.
+      Методические источники: <a href="https://help.figma.com/hc/en-us/articles/15023124644247-Guide-to-Dev-Mode" target="_blank" rel="noreferrer">Figma Dev Mode</a>, <a href="https://playwright.dev/docs/test-snapshots" target="_blank" rel="noreferrer">Playwright visual comparisons</a>, <a href="https://web.dev/articles/responsive-web-design-basics" target="_blank" rel="noreferrer">web.dev responsive basics</a>, <a href="https://www.w3.org/TR/wcag/" target="_blank" rel="noreferrer">WCAG 2.2</a>. Названия сторонних скиллов и число установок меняются со временем: перед установкой проверьте их SKILL.md, репозиторий и разрешения.
     </footer>
   </main>
 
