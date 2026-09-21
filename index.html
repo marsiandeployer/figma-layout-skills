@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Скиллы для точного переноса Figma в сайт и проверки опубликованных страниц, включая Tilda.">
+  <link rel="icon" href="data:,">
+  <title>Скиллы для проверки Figma → сайт и Tilda</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f6f8;
+      --surface: #ffffff;
+      --surface-soft: #edf7f3;
+      --ink: #14231d;
+      --muted: #5d6d66;
+      --line: #d9e0dc;
+      --accent: #087f5b;
+      --accent-dark: #056246;
+      --accent-soft: #dff4eb;
+      --warn: #8a5708;
+      --warn-soft: #fff3cf;
+      --radius: 14px;
+      --shadow: 0 16px 44px rgb(25 60 47 / 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--accent-dark); }
+    a:hover { color: var(--accent); }
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible {
+      outline: 3px solid rgb(8 127 91 / 0.28);
+      outline-offset: 3px;
+    }
+
+    .page {
+      width: min(1240px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 56px 0 72px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.6fr);
+      gap: 36px;
+      align-items: end;
+      padding: 42px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero h1 {
+      max-width: 920px;
+      margin: 0;
+      font-size: clamp(36px, 5.8vw, 72px);
+      line-height: 0.98;
+      letter-spacing: -0.055em;
+      text-wrap: balance;
+    }
+
+    .hero p {
+      max-width: 42ch;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .hero-meta {
+      border-left: 3px solid var(--accent);
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    .hero-meta strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--ink);
+      font-size: 24px;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 22px 0 0;
+    }
+
+    .nav a,
+    .filter-button {
+      display: inline-flex;
+      align-items: center;
+      min-height: 42px;
+      padding: 9px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--ink);
+      font: inherit;
+      font-weight: 650;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .nav a:hover,
+    .filter-button:hover,
+    .filter-button[aria-pressed="true"] {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+    }
+
+    section { margin-top: 54px; }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    .section-heading h2 {
+      max-width: 820px;
+      margin: 0;
+      font-size: clamp(28px, 3.6vw, 46px);
+      line-height: 1.08;
+      letter-spacing: -0.035em;
+      text-wrap: balance;
+    }
+
+    .section-heading p {
+      max-width: 50ch;
+      margin: 10px 0 0;
+      color: var(--muted);
+    }
+
+    .callout {
+      margin: 18px 0 24px;
+      padding: 18px 20px;
+      border-left: 4px solid var(--warn);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      background: var(--warn-soft);
+      color: #523706;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      margin: 24px 0 16px;
+    }
+
+    .search {
+      width: 100%;
+      min-height: 48px;
+      padding: 11px 15px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--ink);
+      font: inherit;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 940px;
+    }
+
+    th,
+    td {
+      padding: 17px 16px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #eaf0ed;
+      color: #32463d;
+      font-size: 13px;
+      letter-spacing: 0.035em;
+      text-transform: uppercase;
+    }
+
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #f8fbf9; }
+
+    .num {
+      width: 42px;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .skill-name {
+      display: block;
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      font-weight: 750;
+      overflow-wrap: anywhere;
+    }
+
+    .subtle {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-size: 13px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .badge.partial {
+      background: var(--warn-soft);
+      color: var(--warn);
+    }
+
+    .badge.indirect {
+      background: #eceff2;
+      color: #47545e;
+    }
+
+    .command {
+      display: block;
+      max-width: 340px;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #f5f8f6;
+      color: #263d33;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+      user-select: all;
+    }
+
+    .source-link {
+      display: inline-block;
+      margin-top: 8px;
+      font-weight: 650;
+    }
+
+    .workflow {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .workflow article {
+      min-height: 168px;
+      padding: 24px;
+      background: var(--surface);
+    }
+
+    .workflow h3 {
+      margin: 0 0 9px;
+      font-size: 18px;
+    }
+
+    .workflow p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    footer {
+      margin-top: 54px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    [hidden] { display: none !important; }
+
+    @media (max-width: 820px) {
+      .page { width: min(100% - 22px, 720px); padding-top: 22px; }
+      .hero { grid-template-columns: 1fr; padding: 28px 22px; }
+      .hero h1 { font-size: clamp(36px, 12vw, 56px); }
+      .section-heading { display: block; }
+      .filters { grid-template-columns: 1fr; }
+      .filter-group { justify-content: flex-start; }
+      .workflow { grid-template-columns: 1fr; }
+
+      .table-wrap {
+        overflow: visible;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+
+      table,
+      thead,
+      tbody,
+      tr,
+      th,
+      td {
+        display: block;
+        min-width: 0;
+      }
+
+      thead { display: none; }
+
+      tbody {
+        display: grid;
+        gap: 12px;
+      }
+
+      tbody tr {
+        padding: 8px 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+        box-shadow: 0 8px 24px rgb(25 60 47 / 0.05);
+      }
+
+      tbody tr:hover { background: var(--surface); }
+
+      td {
+        padding: 10px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      td:last-child { border-bottom: 0; }
+
+      td::before {
+        content: attr(data-label);
+        display: block;
+        margin-bottom: 4px;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      td.num::before { display: none; }
+      td.num { padding-bottom: 0; }
+      .command { max-width: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div>
+        <h1>Figma → сайт: скиллы для точной проверки</h1>
+        <p>Практический каталог для переноса макета в код и контроля опубликованной страницы, в том числе на Tilda.</p>
+        <nav class="nav" aria-label="Разделы страницы">
+          <a href="#checks">9 точечных проверок</a>
+          <a href="#catalog">Полный каталог</a>
+          <a href="#workflow">Порядок работы</a>
+        </nav>
+      </div>
+      <div class="hero-meta">
+        <strong>27 скиллов</strong>
+        9 точечных проверок и 18 инструментов общего процесса.<br>
+        Актуальность поиска: 21 сентября 2026.
+      </div>
+    </header>
+
+    <section id="checks">
+      <div class="section-heading">
+        <div>
+          <h2>9 точечных скиллов под отдельные проверки</h2>
+          <p>Для каждого пункта выбран один наиболее близкий по назначению скилл. Приоритет отдавался точности задачи, популярности и доступности исходного репозитория.</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        Важно: скилл задаёт методику агенту, но не заменяет доступ к Figma и браузерную проверку опубликованной страницы. Для Tilda итог всегда подтверждается на live-странице при том же viewport, что и макет.
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>№</th>
+              <th>Что проверяем</th>
+              <th>Лучший точечный скилл</th>
+              <th>Как применять</th>
+              <th>Tilda</th>
+              <th>Установка и источник</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-kind="focused tilda" data-search="изображения качество pixel screenshot compare">
+              <td class="num" data-label="Номер">01</td>
+              <td data-label="Проверка"><strong>Изображения в исходном качестве</strong></td>
+              <td data-label="Скилл"><span class="skill-name">compare-screenshots</span><span class="subtle">около 190 установок</span></td>
+              <td data-label="Как применять">Сравнивает эталон и рендер по пикселям, резкости границ, кропам и размерам. Для полного контроля дополнить проверкой URL, naturalWidth/naturalHeight и ошибок загрузки в DevTools.</td>
+              <td data-label="Tilda"><span class="badge">Да</span></td>
+              <td data-label="Установка"><code class="command">npx skills add https://github.com/dzhng/skills --skill compare-screenshots</code><a class="source-link" href="https://skills.sh/dzhng/skills/compare-screenshots" target="_blank" rel="noreferrer">Открыть на skills.sh</a></td>
+            </tr>
+            <tr data-kind="focused tilda" data-search="типографика шрифт font line height typography">
+              <td class="num" data-label="Номер">02</td>
+              <td data-label="Проверка"><strong>Все типографические элементы</strong></td>
+              <td data-label="Скилл"><span class="skill-name">critique-typography</span><span class="subtle">около 1,4 тыс. установок</span></td>
+              <td data-label="Как применять">Проверяет шкалу размеров, начертания, line-height, letter-spacing, длину строки, иерархию и согласованность текстовых токенов.</td>
+              <td data-label="Tilda"><span class="badge">Да</span></td>
+              <td data-label="Установка"><code class="command">npx skills add https://github.com/owl-listener/designer-skills --skill critique-typography</code><a class="source-link" href="https://skills.sh/owl-listener/designer-skills/critique-typography" target="_blank" rel="noreferrer">Открыть на skills.sh</a></td>
+            </tr>
+            <tr data-kind="focused tilda" data-search="клики кнопки ссылки формы playwright interaction clickable">
+              <td class="num" data-label="Номер">03</td>
+              <td data-label="Проверка"><strong>Кнопки и все кликабельные элементы</strong></td>
+              <td data-label="Скилл"><span class="skill-name">webapp-testing</span><span class="subtle">около 12,3 тыс. установок, репозиторий GitHub</span></td>
+              <td data-label="Как применять">Через Playwright проходит по кнопкам, ссылкам, меню, формам и диалогам, проверяет переходы, видимость, консоль и сетевые ошибки.</td>
+              <td data-label="Tilda"><span class="badge">Да</span></td>
+              <td data-label="Установка"><code class="command">npx skills add https://github.com/github/awesome-copilot --skill webapp-testing</code><a class="source-link" href="https://skills.sh/github/awesome-copilot/webapp-testing" target="_blank" rel="noreferrer">Открыть на skills.sh</a></td>
+            </tr>
+            <tr data-kind="focused tilda" data-search="цвет контраст фон заливка текст color contrast wcag">
+              <td class="num" data-label="Номер">04</td>
+              <td data-label="Проверка"><strong>Цвета шрифтов, фонов и заливок</strong></td>
+              <td data-label="Скилл"><span class="skill-name">color-contrast</span><span class="subtle">около 160 установок</span></td>
+              <td data-label="Как применять">Измеряет фактические пары foreground/background, текст, иконки, границы и focus-состояния по WCAG 2.2, включая прозрачности и темы.</td>
+              <td data-label="Tilda"><span class="badge">Да</span></td>
+              <td data-label="Установка"><code class="command">npx skills add https://github.com/mgifford/accessibility-skills --skill color-contrast</code><a class="source-link" href="https://skills.sh/mgifford/accessibility-skills/color-contrast" target="_blank" rel="noreferrer">Открыть на skills.sh</a></td>
+            </tr>
+            <tr data-kind="focused tilda" data-search="масштаб размеры позиции figma compare sizing dimensions">
+              <td class="num" data-label="Номер">05</td>
+              <td data-label="Проверка"><strong>Масштабы и размеры элементов</strong></td>
+              <td data-label="Скилл"><span class="skill-name">design-compare</span><span class="subtle">около 60 установок</span></td>
+              <td data-label="Как применять">Сопоставляет Figma-кадр и screenshot реализации, отдельно фиксирует размеры, позиции, padding, margin и отличия масштаба.</td>
+              <td data-label="Tilda"><span class="badge">Да</span></td>
+              <td data-label="Установка"><code class="command">npx skills add https://github.com/artemnovichkov/skills --skill design-compare</code><a class="source-link" href="https://skills.sh/artemnovichkov/skills/design-compare" target="_blank" rel="noreferrer">Открыть на skills.sh</a></td>
+            </tr>
+            <tr data-kind="focused tilda" data-search="перенос текста строки wrapping widows truncation typography">
+              <td class="num" data-label="Номер">06</td>
+              <td data-label="Проверка"><strong>Переносы текстов по строкам</strong></td>
+              <td data-label="Скилл"><span class="skill-name">better-typography</span><span class="subtle">около 22,2 тыс. установок</span></td>
+              <td data-label="Как применять">Проверяет wrapping, widows, truncation, длину строки и реальные переносы при разных ширинах. Особенно полезен для заголовков и карточек.</td>
+              <td data-label="Tilda"><span class="badge">Да</span></td>
+              <td data-label="Установка"><code class="command">npx skills add https://github.com/jakubkrehel/skills --skill better-typography</code><a class="source-link" href="https://skills.sh/jakubkrehel/skills/better-typography" target="_blank" rel="noreferrer">Открыть на skills.sh</a></td>
+            </tr>
+            <tr data-kind="focused partial" data-search="отступы spacing layout alignment gap padding margin">
+              <td class="num" data-label="Номер">07</td>
+              <td data-label="Проверка"><strong>Отступы и выравнивание</strong></td>
+              <td data-label="Скилл"><span class="skill-name">better-layout</span><span class="subtle">около 18,8 тыс. установок</span></td>
+              <td data-label="Как применять">Проверяет spacing-систему, группировку, общие края, интервалы, сетку и поведение layout при изменении размера.</td>
+              <td data-label="Tilda"><span class="badge partial">Частично</span></td>
+              <td data-label="Установка"><code class="command">npx skills add https://github.com/jakubkrehel/skills --skill better-layout</code><a class="source-link" href="https://skills.sh/jakubkrehel/skills/better-layout" target="_blank" rel="noreferrer">Открыть на skills.sh</a></td>
+            </tr>
+            <tr data-kind="focused tilda" data-search="стабильность загрузка скролл web vitals lighthouse cls inp performance">
+              <td class="num" data-label="Номер">08</td>
+              <td data-label="Проверка"><strong>Стабильность загрузки и скролла</strong></td>
+              <td data-label="Скилл"><span class="skill-name">performance-and-web-vitals</span><span class="subtle">около 730 установок</span></td>
+              <td data-label="Как применять">Запускает Lighthouse и проверяет LCP, CLS, INP, тяжёлые ресурсы и сдвиги layout. Плавность скролла дополнительно подтверждается performance trace в DevTools.</td>
+              <td data-label="Tilda"><span class="badge">Да</span></td>
+              <td data-label="Установка"><code class="command">npx skills add https://github.com/dembrandt/dembrandt-skills --skill performance-and-web-vitals</code><a class="source-link" href="https://skills.sh/dembrandt/dembrandt-skills/performance-and-web-vitals" target="_blank" rel="noreferrer">Открыть на skills.sh</a></td>
+            </tr>
+            <tr data-kind="focused partial" data-search="адаптив responsive mobile tablet desktop breakpoints interface">
+              <td class="num" data-label="Номер">09</td>
+              <td data-label="Проверка"><strong>Адаптация под разные интерфейсы</strong></td>
+              <td data-label="Скилл"><span class="skill-name">responsive-design</span><span class="subtle">около 19 тыс. установок</span></td>
+              <td data-label="Как применять">Проверяет mobile-first, breakpoints, fluid type/spacing, Grid/Flexbox, container queries и responsive media на наборе viewport.</td>
+              <td data-label="Tilda"><span class="badge partial">Частично</span></td>
+              <td data-label="Установка"><code class="command">npx skills add https://github.com/wshobson/agents --skill responsive-design</code><a class="source-link" href="https://skills.sh/wshobson/agents/responsive-design" target="_blank" rel="noreferrer">Открыть на skills.sh</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="catalog">
+      <div class="section-heading">
+        <div>
+          <h2>Полный каталог переноса и проверки</h2>
+          <p>Базовая связка из предыдущей таблицы: от получения параметров Figma до финальной проверки опубликованной страницы.</p>
+        </div>
+      </div>
+
+      <div class="filters">
+        <label>
+          <span class="subtle">Поиск по названию или назначению</span>
+          <input class="search" id="skill-search" type="search" placeholder="Например: формы, Tilda, типографика" autocomplete="off">
+        </label>
+        <div class="filter-group" role="group" aria-label="Фильтр каталога">
+          <button class="filter-button" type="button" data-filter="all" aria-pressed="true">Все</button>
+          <button class="filter-button" type="button" data-filter="tilda" aria-pressed="false">Tilda: да</button>
+          <button class="filter-button" type="button" data-filter="partial" aria-pressed="false">Частично</button>
+          <button class="filter-button" type="button" data-filter="local" aria-pressed="false">Уже доступны</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table id="catalog-table">
+          <thead>
+            <tr>
+              <th>Скилл</th>
+              <th>Категория</th>
+              <th>Для чего применять</th>
+              <th>Статус</th>
+              <th>Tilda</th>
+              <th>Источник</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-kind="tilda local" data-search="figma implement design перенос эталон размеры отступы шрифты цвета изображения состояния"><td data-label="Скилл"><span class="skill-name">figma-implement-design</span></td><td data-label="Категория">Перенос и эталон</td><td data-label="Назначение">Извлекает параметры конкретного Figma-узла и помогает реализовать дизайн с визуальным сравнением.</td><td data-label="Статус">Уже доступен</td><td data-label="Tilda"><span class="badge">Да</span></td><td data-label="Источник">Локальный скилл</td></tr>
+            <tr data-kind="tilda local" data-search="chrome devtools automation браузер скриншоты клики формы console network viewport"><td data-label="Скилл"><span class="skill-name">chrome-devtools-automation</span></td><td data-label="Категория">Браузерная проверка</td><td data-label="Назначение">Скриншоты, viewport, клики, формы, console/network и проверка фактического рендера.</td><td data-label="Статус">Уже доступен</td><td data-label="Tilda"><span class="badge">Да</span></td><td data-label="Источник">Локальный скилл</td></tr>
+            <tr data-kind="tilda local" data-search="design review визуальный аудит сетка интервалы типографика цвета адаптивность"><td data-label="Скилл"><span class="skill-name">design-review</span></td><td data-label="Категория">Визуальный аудит</td><td data-label="Назначение">Проверяет иерархию, сетку, интервалы, типографику, цвета и адаптивность.</td><td data-label="Статус">Уже доступен</td><td data-label="Tilda"><span class="badge">Да</span></td><td data-label="Источник">Локальный скилл</td></tr>
+            <tr data-kind="tilda local" data-search="test master стратегия ui e2e visual regression"><td data-label="Скилл"><span class="skill-name">test-master</span></td><td data-label="Категория">Стратегия тестирования</td><td data-label="Назначение">Определяет набор UI, E2E и visual regression-проверок и приоритеты покрытия.</td><td data-label="Статус">Уже доступен</td><td data-label="Tilda"><span class="badge">Да</span></td><td data-label="Источник">Локальный скилл</td></tr>
+            <tr data-kind="tilda local" data-search="post deploy qa финальная приемка live published"><td data-label="Скилл"><span class="skill-name">post-deploy-qa</span></td><td data-label="Категория">Финальная приёмка</td><td data-label="Назначение">Проверяет опубликованную версию после выкладки и повторно после исправлений.</td><td data-label="Статус">Уже доступен</td><td data-label="Tilda"><span class="badge">Да</span></td><td data-label="Источник">Локальный скилл</td></tr>
+            <tr data-kind="partial" data-search="implement design figma code tokens components pixel perfect"><td data-label="Скилл"><span class="skill-name">implement-design</span></td><td data-label="Категория">Перенос Figma → код</td><td data-label="Назначение">Переводит Figma в production-код с design tokens, компонентами и pixel-perfect parity.</td><td data-label="Статус">Нужно установить</td><td data-label="Tilda"><span class="badge partial">Частично</span></td><td data-label="Источник"><a href="https://skills.sh/figma/mcp-server-guide/implement-design" target="_blank" rel="noreferrer">skills.sh</a></td></tr>
+            <tr data-kind="partial" data-search="figma handoff variables tokens components auto layout css"><td data-label="Скилл"><span class="skill-name">figma-design-handoff</span></td><td data-label="Категория">Передача дизайна</td><td data-label="Назначение">Переводит Variables в tokens, описывает компоненты, варианты и состояния, Auto Layout → CSS.</td><td data-label="Статус">Нужно установить</td><td data-label="Tilda"><span class="badge partial">Частично</span></td><td data-label="Источник"><a href="https://skills.sh/yonatangross/orchestkit/figma-design-handoff" target="_blank" rel="noreferrer">skills.sh</a></td></tr>
+            <tr data-kind="partial" data-search="frontend design system цвета типографика spacing breakpoint motion accessibility"><td data-label="Скилл"><span class="skill-name">frontend-design-system</span></td><td data-label="Категория">Дизайн-система</td><td data-label="Назначение">Систематизирует цвета, типографику, spacing, breakpoints, motion и accessibility.</td><td data-label="Статус">Нужно установить</td><td data-label="Tilda"><span class="badge partial">Частично</span></td><td data-label="Источник"><a href="https://skills.sh/supercent-io/skills-template/frontend-design-system" target="_blank" rel="noreferrer">skills.sh</a></td></tr>
+            <tr data-kind="tilda" data-search="figma check design parity сравнение размеры позиции отступы цвета шрифты line height радиусы"><td data-label="Скилл"><span class="skill-name">figma-check-design-parity</span></td><td data-label="Категория">Сверка Figma ↔ сайт</td><td data-label="Назначение">Сравнивает размеры, позиции, отступы, цвета, шрифты, line-height, радиусы и другие свойства.</td><td data-label="Статус">Нужно установить</td><td data-label="Tilda"><span class="badge">Да</span></td><td data-label="Источник"><a href="https://skills.sh/southleft/figma-console-mcp-skills/figma-check-design-parity" target="_blank" rel="noreferrer">skills.sh</a></td></tr>
+            <tr data-kind="indirect" data-search="figma lint design макет цвета контраст layout wcag"><td data-label="Скилл"><span class="skill-name">figma-lint-design</span></td><td data-label="Категория">Проверка макета</td><td data-label="Назначение">Проверяет сам Figma-макет: цвета, контраст, layout, WCAG и согласованность дизайн-системы.</td><td data-label="Статус">Нужно установить</td><td data-label="Tilda"><span class="badge indirect">Косвенно</span></td><td data-label="Источник"><a href="https://skills.sh/southleft/figma-console-mcp-skills/figma-lint-design" target="_blank" rel="noreferrer">skills.sh</a></td></tr>
+            <tr data-kind="tilda" data-search="playwright skill интерактивность e2e клики формы keyboard screenshots network api"><td data-label="Скилл"><span class="skill-name">playwright-skill</span></td><td data-label="Категория">Интерактивность и E2E</td><td data-label="Назначение">Проверяет клики, формы, клавиатуру, screenshots, visual regression, accessibility, network и API.</td><td data-label="Статус">Нужно установить</td><td data-label="Tilda"><span class="badge">Да</span></td><td data-label="Источник"><a href="https://skills.sh/testdino-hq/playwright-skill/playwright-skill" target="_blank" rel="noreferrer">skills.sh</a></td></tr>
+            <tr data-kind="tilda" data-search="web accessibility keyboard focus aria alt contrast формы"><td data-label="Скилл"><span class="skill-name">web-accessibility</span></td><td data-label="Категория">Доступность</td><td data-label="Назначение">Проверяет keyboard navigation, focus, ARIA, alt-тексты, контраст и доступность форм.</td><td data-label="Статус">Нужно установить</td><td data-label="Tilda"><span class="badge">Да</span></td><td data-label="Источник"><a href="https://skills.sh/supercent-io/skills-template/web-accessibility" target="_blank" rel="noreferrer">skills.sh</a></td></tr>
+            <tr data-kind="tilda" data-search="visual regression tester baseline screenshot viewport pixel overflow"><td data-label="Скилл"><span class="skill-name">visual-regression-tester</span></td><td data-label="Категория">Визуальная регрессия</td><td data-label="Назначение">Сравнивает baseline и текущий рендер пиксельно на разных viewport.</td><td data-label="Статус">Нужно установить</td><td data-label="Tilda"><span class="badge">Да</span></td><td data-label="Источник"><a href="https://skills.sh/patricio0312rev/skills/visual-regression-tester" target="_blank" rel="noreferrer">skills.sh</a></td></tr>
+            <tr data-kind="tilda" data-search="typography system font family weight scale line height строки"><td data-label="Скилл"><span class="skill-name">typography-system</span></td><td data-label="Категория">Типографика</td><td data-label="Назначение">Проверяет font-family, weight, type scale, line-height, длину строк и иерархию заголовков.</td><td data-label="Статус">Нужно установить</td><td data-label="Tilda"><span class="badge">Да</span></td><td data-label="Источник"><a href="https://skills.sh/sanky369/vibe-building-skills/typography-system" target="_blank" rel="noreferrer">skills.sh</a></td></tr>
+            <tr data-kind="tilda" data-search="playwright test generator codegen сценарии клики переходы формы"><td data-label="Скилл"><span class="skill-name">playwright-test-generator-with-codegen</span></td><td data-label="Категория">Запись сценариев</td><td data-label="Назначение">Записывает пользовательские действия и помогает получить повторяемые Playwright-тесты.</td><td data-label="Статус">Нужно установить</td><td data-label="Tilda"><span class="badge">Да</span></td><td data-label="Источник"><a href="https://skills.sh/agentskillexchange/skills/playwright-test-generator-with-codegen" target="_blank" rel="noreferrer">skills.sh</a></td></tr>
+            <tr data-kind="tilda" data-search="forms inputs checkout поля label placeholder validation error success loading disabled focus"><td data-label="Скилл"><span class="skill-name">forms-inputs-checkout</span></td><td data-label="Категория">Формы и поля</td><td data-label="Назначение">Проверяет labels, placeholders, validation, error, success, loading, disabled, focus и help text.</td><td data-label="Статус">Нужно установить</td><td data-label="Tilda"><span class="badge">Да</span></td><td data-label="Источник"><a href="https://skills.sh/hueyexe/frontend-agent-skills/forms-inputs-checkout" target="_blank" rel="noreferrer">skills.sh</a></td></tr>
+            <tr data-kind="indirect" data-search="figma audit accessibility компоненты макет"><td data-label="Скилл"><span class="skill-name">figma-audit-accessibility</span></td><td data-label="Категория">Доступность в Figma</td><td data-label="Назначение">Глубоко проверяет доступность компонентов ещё на уровне макета.</td><td data-label="Статус">Нужно установить</td><td data-label="Tilda"><span class="badge indirect">Косвенно</span></td><td data-label="Источник"><a href="https://skills.sh/southleft/figma-console-mcp-skills/figma-audit-accessibility" target="_blank" rel="noreferrer">skills.sh</a></td></tr>
+            <tr data-kind="partial" data-search="figma scan code accessibility html css js"><td data-label="Скилл"><span class="skill-name">figma-scan-code-accessibility</span></td><td data-label="Категория">Доступность кода</td><td data-label="Назначение">Проверяет доступность HTML-кода, связанного с Figma-реализацией.</td><td data-label="Статус">Нужно установить</td><td data-label="Tilda"><span class="badge partial">Частично</span></td><td data-label="Источник"><a href="https://skills.sh/southleft/figma-console-mcp-skills/figma-scan-code-accessibility" target="_blank" rel="noreferrer">skills.sh</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p id="empty-message" class="callout" hidden>По этому запросу ничего не найдено. Попробуйте более короткое слово.</p>
+    </section>
+
+    <section id="workflow">
+      <div class="section-heading">
+        <div>
+          <h2>Рекомендуемый порядок проверки</h2>
+          <p>Точечные скиллы эффективнее работают как последовательность, а не как независимые формальные галочки.</p>
+        </div>
+      </div>
+      <div class="workflow">
+        <article><h3>1. Зафиксировать эталон</h3><p>Выбрать точный Figma node, viewport, состояние компонента, тексты и изображения.</p></article>
+        <article><h3>2. Сверить визуал</h3><p>Проверить изображения, размеры, типографику, переносы, цвета и отступы на одинаковой ширине.</p></article>
+        <article><h3>3. Пройти поведение</h3><p>Проверить клики, формы, состояния, клавиатуру, загрузку, скролл и console/network.</p></article>
+        <article><h3>4. Проверить адаптив</h3><p>Повторить контроль на согласованном наборе desktop, tablet и mobile viewport.</p></article>
+        <article><h3>5. Исправить причины</h3><p>Менять общие стили и компоненты только для подтверждённых расхождений, затем повторять тест.</p></article>
+        <article><h3>6. Принять live-версию</h3><p>Финальное подтверждение делать на опубликованной странице, а не только в редакторе Tilda.</p></article>
+      </div>
+    </section>
+
+    <footer>
+      Источники: карточки skills.sh и исходные репозитории скиллов. Число установок меняется со временем. Перед установкой стороннего скилла рекомендуется проверить его SKILL.md и разрешения.
+    </footer>
+  </main>
+
+  <script>
+    const search = document.querySelector('#skill-search');
+    const buttons = [...document.querySelectorAll('[data-filter]')];
+    const rows = [...document.querySelectorAll('#catalog-table tbody tr')];
+    const emptyMessage = document.querySelector('#empty-message');
+    let activeFilter = 'all';
+
+    function updateRows() {
+      const query = search.value.trim().toLocaleLowerCase('ru');
+      let visible = 0;
+
+      rows.forEach((row) => {
+        const haystack = `${row.dataset.search || ''} ${row.textContent}`.toLocaleLowerCase('ru');
+        const matchesText = !query || haystack.includes(query);
+        const matchesFilter = activeFilter === 'all' || (row.dataset.kind || '').split(' ').includes(activeFilter);
+        row.hidden = !(matchesText && matchesFilter);
+        if (!row.hidden) visible += 1;
+      });
+
+      emptyMessage.hidden = visible !== 0;
+    }
+
+    search.addEventListener('input', updateRows);
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        activeFilter = button.dataset.filter;
+        buttons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+        updateRows();
+      });
+    });
+  </script>
+</body>
+</html>
