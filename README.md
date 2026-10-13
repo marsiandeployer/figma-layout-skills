@@ -1,8 +1,12 @@
 # Figma layout skills page
 
-Standalone HTML reference page with two tables:
+Reference page for two distinct workflows:
 
-- nine focused skills for specific Figma-to-site checks;
-- the broader catalog for Figma-to-site and Figma-to-Tilda workflows.
+- initial Figma-to-site transfer;
+- element-by-element audit of an existing implementation.
 
-Open `index.html` directly or serve the directory with any static web server.
+Both workflows prioritize the selected Figma nodes, define measurable acceptance criteria, and distinguish local evidence from live acceptance. The focused and broader skill catalogs remain below the methodology.
+
+The agent-ready document is `methodology.md`. Its content is also embedded in the methodology section of `index.html`; keep both versions synchronized when editing.
+
+Open `index.html` directly or serve this directory with a static web server.
